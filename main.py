@@ -1,11 +1,13 @@
 import numpy as np
 
+import aco
 import aco as ACO
 
 def main():
 
-    def objective_function(tsp, path):
-        _, links, distances = tsp.values()
+    def objective_function(path):
+        _, arcs = tsp.values()
+        links, distances = arcs.values()
 
         total_distance = 0
         for i in range(len(path)):
@@ -14,7 +16,6 @@ def main():
             link = tuple(link)
             idx = links.index(link)
             total_distance += distances[idx]
-            print('link:', link, 'idx:', idx, 'distance:', distances[idx])
         return total_distance
 
 
@@ -26,24 +27,27 @@ def main():
         [2, 4],     # 4
     ])
     sample_path = np.array([0, 2, 4, 3, 1])
+    sample_path = np.array([2, 3, 1, 4, 0]) # 15.02921998082742
 
     tsp = {
-        'cities': cities,
-        'links': [],
-        'distances': np.array([])
+        'components': cities,
+        'arcs': {
+            'arc': [],
+            'value': []
+        }
     }
 
     for i in range(len(cities)):
         for j in range(len(cities)):
             if i >= j:
                 continue
-            tsp['links'].append((i,j))
-            tsp['distances'] = np.append(tsp['distances'], np.sqrt((cities[i][0] - cities[j][0])**2 + (cities[i][1] - cities[j][1])**2))
+            tsp['arcs']['arc'].append((i, j))
+            tsp['arcs']['value'].extend([np.sqrt((cities[i][0] - cities[j][0])**2 + (cities[i][1] - cities[j][1])**2)])
 
-    print(tsp['links'], tsp['distances'])
+    print(tsp['components'], tsp['arcs'])
+    print(objective_function(sample_path))
 
-
-    print(objective_function(tsp, sample_path))
+    print(aco.nearest_neighbour(tsp))
 
 
 if __name__ == '__main__':
