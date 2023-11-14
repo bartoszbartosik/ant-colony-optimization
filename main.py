@@ -4,12 +4,18 @@ import aco as ACO
 
 def main():
 
-    def objective_function(cities, path):
-        sum = 0
-        for i in range(len(path))[1:]:
-            sum += np.sqrt((cities[path[i]][0] - cities[path[i-1]][0])**2 + (cities[path[i]][1] - cities[path[i-1]][1])**2)
-        sum += np.sqrt((cities[path[-1]][0] - cities[path[0]][0])**2 + (cities[path[-1]][1] - cities[path[0]][1])**2)
-        return sum
+    def objective_function(tsp, path):
+        _, links, distances = tsp.values()
+
+        total_distance = 0
+        for i in range(len(path)):
+            link = [path[i-1], path[i]]
+            link.sort()
+            link = tuple(link)
+            idx = links.index(link)
+            total_distance += distances[idx]
+            print('link:', link, 'idx:', idx, 'distance:', distances[idx])
+        return total_distance
 
 
     cities = np.array([
@@ -19,6 +25,7 @@ def main():
         [8, 2],     # 3
         [2, 4],     # 4
     ])
+    sample_path = np.array([0, 2, 4, 3, 1])
 
     tsp = {
         'cities': cities,
@@ -35,15 +42,8 @@ def main():
 
     print(tsp['links'], tsp['distances'])
 
-    sample_path = np.array([0, 2, 4, 3, 1])
-    sample_path = np.array([
-        [0, 2],
-        [2, 4],
-        [4, 3],
-        [3, 1],
-    ])
 
-    print(objective_function(cities, sample_path))
+    print(objective_function(tsp, sample_path))
 
 
 if __name__ == '__main__':
