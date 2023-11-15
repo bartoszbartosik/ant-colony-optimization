@@ -2,38 +2,35 @@ import numpy as np
 import random
 
 
-def nearest_neighbour(tsp: dict):
-    # Solve TSP problem by starting at random city and keep choosing the nearest city until any is left
-    # In order to determine C
-    components, arcs  = tsp.values()
-    arc, values = arcs.values()
+def nearest_neighbour(graph: dict):
+    """
+    Solve graph problem by starting at random node and keep choosing the nearest one until any is left.
+    """
+    # Unpack graph dictionary
+    C, L  = graph.values()
+    arcs, values = L.values()
 
-    random_component = random.choice(components)
-    component_index = np.argwhere(components==random_component)[0][0]
-    solution = []
+    # Choose random node to start with
+    i = np.random.randint(len(C))
 
-    C = 0
-    while len(solution) < len(components):
+    # Initialize solution list
+    s = [i]
+
+    # Iterate until s list is not full
+    while len(s) < len(C):
+        # Initialize lists of feasible nodes for node i
         feasible_arcs = []
         feasible_values = []
-        for i in range(len(arc)):
-            if component_index in arc[i] and len(set(arc[i]).intersection(solution)) == 0:
-                feasible_arcs.append(arc[i])
-                feasible_values.append(values[i])
-        solution.append(component_index)
-        least_distance = np.argmin(np.array(feasible_values))
-        C += feasible_values[least_distance]
-        nearest_node = feasible_arcs[least_distance]
-        component_index = nearest_node[0] if nearest_node[1] == component_index else nearest_node[1]
-        if len(solution) == len(components) - 1:
-            solution.append(component_index)
-            break
-    end_solution = [solution[-1], solution[0]]
-    end_solution.sort()
-    end_solution = tuple(end_solution)
-    idx = arc.index(end_solution)
-    C += values[idx]
-    return C
+        for j in range(len(arcs)):
+            # Find connections from node i to j AND which are not present in the s list
+            if arcs[j][0] == i and arcs[j][1] not in s[:-1]:
+                feasible_arcs.append(arcs[j])
+                feasible_values.append(values[j])
+                print('arc', arcs[j], 'value', values[j])
+        # Get nearest neighbour j
+        i = feasible_arcs[np.argmin(np.array(feasible_values))][1]
+        s.append(i)
+    return s
 
 
 class AntColonyOptimization:

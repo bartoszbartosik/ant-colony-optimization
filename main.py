@@ -11,9 +11,7 @@ def main():
 
         total_distance = 0
         for i in range(len(path)):
-            link = [path[i-1], path[i]]
-            link.sort()
-            link = tuple(link)
+            link = tuple([path[i-1], path[i]])
             idx = links.index(link)
             total_distance += distances[idx]
         return total_distance
@@ -39,8 +37,9 @@ def main():
 
     for i in range(len(cities)):
         for j in range(len(cities)):
-            if i >= j:
-                continue
+            # if i >= j:
+            if i == j:
+                    continue
             tsp['arcs']['arc'].append((i, j))
             tsp['arcs']['value'].extend([np.sqrt((cities[i][0] - cities[j][0])**2 + (cities[i][1] - cities[j][1])**2)])
 
