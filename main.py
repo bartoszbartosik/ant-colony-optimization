@@ -45,8 +45,10 @@ def main():
     print(tsp['components'], tsp['arcs'])
     print(objective_function(sample_path))
 
-    aco = ACO(tsp, objective_function, ants_number=10, evaporation_rate=0.5, Q=1)
+    aco = ACO(tsp, objective_function, ants_number=10, evaporation_rate=0.5, alpha=1, beta=3, Q=1)
     aco.tau_init()
+    print(aco.nearest_neighbour())
+    print(aco.tour_construction())
 
 
 if __name__ == '__main__':
