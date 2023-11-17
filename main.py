@@ -16,15 +16,22 @@ def main():
             total_distance += distances[idx]
         return total_distance
 
+    # cities = np.array([
+    #     [0, 0],  # 0
+    #     [4, 1],  # 1
+    #     [6, 4],  # 2
+    #     [8, 2],  # 3
+    #     [2, 4],  # 4
+    # ])
+    # sample_path = np.array([0, 2, 4, 3, 1])
 
     cities = np.array([
         [0, 0],     # 0
-        [4, 1],     # 1
-        [6, 4],     # 2
-        [8, 2],     # 3
-        [2, 4],     # 4
+        [4, 0],     # 1
+        [4, 3],     # 2
+        [0, 3],     # 3
     ])
-    sample_path = np.array([0, 2, 4, 3, 1])
+    sample_path = np.array([0, 2, 1, 3])
 
     tsp = {
         'components': cities,
@@ -36,9 +43,8 @@ def main():
 
     for i in range(len(cities)):
         for j in range(len(cities)):
-            # if i >= j:
             if i == j:
-                    continue
+                continue
             tsp['arcs']['arc'].append((i, j))
             tsp['arcs']['value'].extend([np.sqrt((cities[i][0] - cities[j][0])**2 + (cities[i][1] - cities[j][1])**2)])
 
@@ -46,8 +52,7 @@ def main():
     print(objective_function(sample_path))
 
     aco = ACO(tsp, objective_function, ants_number=10, evaporation_rate=0.5, alpha=1, beta=3, Q=1)
-    aco.tau_init()
-    print(aco.nearest_neighbour())
+    # aco.tau_init()
     print(aco.tour_construction())
 
 

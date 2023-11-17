@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 from ant import Ant
 import random
@@ -34,17 +36,15 @@ class AntColonyOptimization:
         # Current node
         s = [i]
 
-        feasible_arcs = []
-        feasible_values = []
+        feasible_indexes = []
         for j in range(len(self.arcs)):
             # Find connections from node i to j AND which are not present in the s list
             if self.arcs[j][0] == i and self.arcs[j][1] not in s[:-1]:
-                feasible_arcs.append(self.arcs[j])
-                feasible_values.append(self.values[j])
+                feasible_indexes.append(j)
 
-        print('arcs', feasible_arcs, 'values', feasible_values)
+        print('feasible_nodes', feasible_indexes)
+        [print(self.arcs[i]) for i in feasible_indexes]
         # Get nearest neighbour j
-        i = feasible_arcs[np.argmin(np.array(feasible_values))][1]
         s.append(i)
 
 
@@ -66,15 +66,16 @@ class AntColonyOptimization:
         # Iterate until s list is not full
         while len(s) < len(self.C):
             # Initialize lists of feasible nodes for node i
-            feasible_arcs = []
-            feasible_values = []
+            nearest_index = 0
+            nearest_value = sys.maxsize
             for j in range(len(self.arcs)):
                 # Find connections from node i to j AND which are not present in the s list
                 if self.arcs[j][0] == i and self.arcs[j][1] not in s[:-1]:
-                    feasible_arcs.append(self.arcs[j])
-                    feasible_values.append(self.values[j])
+                    if self.values[j] < nearest_value:
+                        nearest_value = self.values[j]
+                        nearest_index = j
             # Get nearest neighbour j
-            i = feasible_arcs[np.argmin(feasible_values)][1]
+            i = self.arcs[nearest_index][1]
             s.append(i)
 
         return s
