@@ -21,6 +21,7 @@ class AntColonyOptimization:
         # # #
         # Inner variables
         self.ants = [Ant() for i in range(ants_number)]
+        self.eta = 1/np.array(self.values)
         self.tau = np.zeros_like(list(list(graph.values())[1].values())[1])
         self.dtau = np.array([])
 
@@ -29,23 +30,27 @@ class AntColonyOptimization:
         nodes = range(len(self.C))
         for ant in self.ants:
             ant.M.append(random.choice(nodes))
-            self.select_next_node(ant.M[-1])
+            j = self.select_next_node(ant.M)
 
 
-    def select_next_node(self, i):
+    def select_next_node(self, M):
         # Current node
-        s = [i]
+        i = M[-1]
 
         feasible_indexes = []
+        p = np.array([])
         for j in range(len(self.arcs)):
             # Find connections from node i to j AND which are not present in the s list
-            if self.arcs[j][0] == i and self.arcs[j][1] not in s[:-1]:
+            if self.arcs[j][0] == i and self.arcs[j][1] not in M[:-1]:
                 feasible_indexes.append(j)
+                p_ij = self.tau[j]**self.alpha * self.eta[j]**self.beta
+                p = np.append(p, p_ij)
 
-        print('feasible_nodes', feasible_indexes)
-        [print(self.arcs[i]) for i in feasible_indexes]
-        # Get nearest neighbour j
-        s.append(i)
+        p = p/sum(p)
+        choice = np.random.choice(feasible_indexes, p=p)
+
+        return self.arcs[choice][1]
+
 
 
     def tau_init(self):
