@@ -27,10 +27,16 @@ class AntColonyOptimization:
 
 
     def tour_construction(self):
-        nodes = range(len(self.C))
+        nodes = len(self.C)
+        for _ in range(nodes-1):
+            for ant in self.ants:
+                if len(ant.M) == 0:
+                    ant.M.append(random.choice(range(nodes)))
+                j = self.select_next_node(ant.M)
+                ant.M.append(j)
+
         for ant in self.ants:
-            ant.M.append(random.choice(nodes))
-            j = self.select_next_node(ant.M)
+            print('tour:', ant.M)
 
 
     def select_next_node(self, M):
@@ -47,9 +53,9 @@ class AntColonyOptimization:
                 p = np.append(p, p_ij)
 
         p = p/sum(p)
-        choice = np.random.choice(feasible_indexes, p=p)
+        j = np.random.choice(feasible_indexes, p=p)
 
-        return self.arcs[choice][1]
+        return self.arcs[j][1]
 
 
 
