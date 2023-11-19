@@ -22,6 +22,7 @@ class AntColonyOptimization:
         self.ants = []
         self.eta = 1/np.array(self.L)
         self.tau = np.zeros_like(self.L)
+        self.tau_init()
 
 
     def predict(self, starting_node):
@@ -38,11 +39,11 @@ class AntColonyOptimization:
 
 
     def run(self, iterations):
-        self.tau_init()
         for _ in range(iterations):
             self.ants = [Ant() for _ in range(self.m)]
             self.tour_construction()
             self.update_pheromones()
+
 
     def update_pheromones(self):
         self.tau *= (1-self.ro)
@@ -54,8 +55,6 @@ class AntColonyOptimization:
 
             ant.M = []
             ant.L = 0
-
-        print(self.tau)
 
 
     def tour_construction(self):
@@ -69,9 +68,6 @@ class AntColonyOptimization:
                 ant.L += self.L[ant.M[-2], j]
                 if node == nodes - 2:
                     ant.L += self.L[ant.M[0], ant.M[-1]]
-
-        for ant in self.ants:
-            print('nodes:', ant.M, 'distances:', ant.L)
 
 
     def select_next_node(self, M):
@@ -94,7 +90,7 @@ class AntColonyOptimization:
 
 
     def tau_init(self):
-        s, L = self.nearest_neighbour()
+        _, L = self.nearest_neighbour()
         self.tau += self.m/L
 
 

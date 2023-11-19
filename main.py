@@ -4,40 +4,31 @@ import numpy as np
 
 from aco import AntColonyOptimization as ACO
 
+from tsp import TravelingSalesmanProblem as TSP
+
 def main():
 
-    def objective_function(path):
-        components, values = tsp
-
-        total_distance = 0
-        for i in range(len(path)):
-            total_distance += values[path[i-1], path[i]]
-        return total_distance
-
+    # Create arrays of cities with their (x, y) coordinates
     cities = np.array([
         [0, 0],     # 0
         [4, 0],     # 1
         [4, 3],     # 2
         [0, 3],     # 3
     ])
+
+    # Create TravelingSalesmanProblem instance
+    tsp = TSP(cities)
+
+    # Compute distance between given series of cities
     sample_path = np.array([0, 2, 1, 3])
+    print(tsp.get_distance(sample_path))
 
-    distances = np.zeros(shape=(len(cities), len(cities)))
-    for i in range(len(cities)):
-        for j in range(len(cities)):
-            if i == j:
-                distances[i][j] = sys.maxsize
-                continue
-            distances[i][j] = np.sqrt((cities[i][0] - cities[j][0])**2 + (cities[i][1] - cities[j][1])**2)
-
-    print(distances)
-    tsp = (cities, distances)
-
-    print(objective_function(sample_path))
-
-    aco = ACO(tsp, objective_function, ants_number=10, evaporation_rate=0.5, alpha=1, beta=3, Q=1)
-    aco.run(100)
-    print(aco.predict(1))
+    # Initialize Ant System algorithm
+    aco = ACO(tsp.get_graph(), tsp.get_distance, ants_number=10, evaporation_rate=0.5, alpha=1, beta=3, Q=1)
+    # Run algorithm n times to construct ants solutions
+    aco.run(10)
+    # Predict solution starting from given node
+    print(aco.predict(0))
 
 
 
