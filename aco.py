@@ -7,10 +7,9 @@ import random
 
 class AntColonyOptimization:
 
-    def __init__(self, graph: dict, objective_function, ants_number: int, evaporation_rate: float, alpha, beta, Q):
+    def __init__(self, graph: tuple, objective_function, ants_number: int, evaporation_rate: float, alpha, beta, Q):
         # Unpack graph values
-        self.C, self.L = graph.values()
-        self.arcs, self.values = self.L.values()
+        self.C, self.L = graph
         # # #
         self.f = objective_function
         self.m = ants_number
@@ -21,8 +20,8 @@ class AntColonyOptimization:
         # # #
         # Inner variables
         self.ants = [Ant() for i in range(ants_number)]
-        self.eta = 1/np.array(self.values)
-        self.tau = np.zeros_like(list(list(graph.values())[1].values())[1])
+        self.eta = 1/np.array(self.L)
+        self.tau = np.zeros_like(self.L)
         self.dtau = np.array([])
 
 
@@ -33,10 +32,12 @@ class AntColonyOptimization:
                 if len(ant.M) == 0:
                     ant.M.append(random.choice(range(nodes)))
                 j = self.select_next_node(ant.M)
-                ant.M.append(j)
+                ant.M.append(self.C[j])
+                ant.T.append(self.L[j])
+
 
         for ant in self.ants:
-            print('tour:', ant.M)
+            print('nodes:', ant.M, 'distances:', ant.T)
 
 
     def select_next_node(self, M):
@@ -55,8 +56,7 @@ class AntColonyOptimization:
         p = p/sum(p)
         j = np.random.choice(feasible_indexes, p=p)
 
-        return self.arcs[j][1]
-
+        return j
 
 
     def tau_init(self):
@@ -68,25 +68,27 @@ class AntColonyOptimization:
         """
         Solve graph problem by starting at random node and keep choosing the nearest one until any is left.
         """
-        # Choose random node to start with
-        i = np.random.randint(len(self.C))
-
-        # Initialize solution list
-        s = [i]
+        # Initialize solution list with randomly chosen node
+        s = [np.random.randint(len(self.C))]
 
         # Iterate until s list is not full
         while len(s) < len(self.C):
+            # Current node
+            i = s[-1]
+
             # Initialize lists of feasible nodes for node i
             nearest_index = 0
             nearest_value = sys.maxsize
-            for j in range(len(self.arcs)):
-                # Find connections from node i to j AND which are not present in the s list
-                if self.arcs[j][0] == i and self.arcs[j][1] not in s[:-1]:
-                    if self.values[j] < nearest_value:
-                        nearest_value = self.values[j]
+
+            # Consider all j nodes linked to i
+            for j in range(len(self.L[i])):
+                # Consider j which are not present in the s list
+                if j not in s[:-1]:
+                    if self.L[i][j] < nearest_value:
+                        nearest_value = self.L[i][j]
                         nearest_index = j
+
             # Get nearest neighbour j
-            i = self.arcs[nearest_index][1]
-            s.append(i)
+            s.append(nearest_index)
 
         return s
