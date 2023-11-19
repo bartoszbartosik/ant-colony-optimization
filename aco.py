@@ -7,11 +7,10 @@ import random
 
 class AntColonyOptimization:
 
-    def __init__(self, graph: tuple, objective_function, ants_number: int, evaporation_rate: float, alpha, beta, Q):
+    def __init__(self, graph: tuple, ants_number: int, evaporation_rate: float, alpha, beta, Q):
         # Unpack graph values
         self.C, self.L = graph
         # # #
-        self.f = objective_function
         self.m = ants_number
         self.ro = evaporation_rate
         self.alpha = alpha
@@ -25,17 +24,16 @@ class AntColonyOptimization:
         self.tau_init()
 
 
-    def predict(self, starting_node):
-        nodes = len(self.C)
-        ant = Ant()
-        ant.M.append(starting_node)
-        for node in range(nodes - 1):
-            j = self.select_next_node(ant.M)
-            ant.M.append(j)
-            ant.L += self.L[ant.M[-2], j]
-            if node == nodes - 2:
-                ant.L += self.L[ant.M[0], ant.M[-1]]
-        return ant.M, ant.L
+    def get_solution(self):
+        min_value = sys.maxsize
+        solution = 0
+        for ant in self.ants:
+            print(ant.L)
+            if ant.L < min_value:
+                min_value = ant.L
+                solution = ant.M
+            print(min_value)
+        return solution, min_value
 
 
     def run(self, iterations):
@@ -52,9 +50,6 @@ class AntColonyOptimization:
             path = ant.M
             for i in range(len(ant.M)):
                 self.tau[path[i - 1], path[i]] += self.Q/ant.L
-
-            ant.M = []
-            ant.L = 0
 
 
     def tour_construction(self):
