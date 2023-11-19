@@ -2,7 +2,6 @@ import sys
 
 import numpy as np
 
-import aco
 from aco import AntColonyOptimization as ACO
 
 def main():
@@ -37,8 +36,8 @@ def main():
     print(objective_function(sample_path))
 
     aco = ACO(tsp, objective_function, ants_number=10, evaporation_rate=0.5, alpha=1, beta=3, Q=1)
-    aco.tau_init()
-    print(aco.tour_construction())
+    aco.run(100)
+    print(aco.predict(1))
 
 
 

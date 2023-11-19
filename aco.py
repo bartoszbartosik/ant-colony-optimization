@@ -19,48 +19,82 @@ class AntColonyOptimization:
         self.Q = Q
         # # #
         # Inner variables
-        self.ants = [Ant() for i in range(ants_number)]
+        self.ants = []
         self.eta = 1/np.array(self.L)
         self.tau = np.zeros_like(self.L)
-        self.dtau = np.array([])
+
+
+    def predict(self, starting_node):
+        nodes = len(self.C)
+        ant = Ant()
+        ant.M.append(starting_node)
+        for node in range(nodes - 1):
+            j = self.select_next_node(ant.M)
+            ant.M.append(j)
+            ant.L += self.L[ant.M[-2], j]
+            if node == nodes - 2:
+                ant.L += self.L[ant.M[0], ant.M[-1]]
+        return ant.M, ant.L
+
+
+    def run(self, iterations):
+        self.tau_init()
+        for _ in range(iterations):
+            self.ants = [Ant() for _ in range(self.m)]
+            self.tour_construction()
+            self.update_pheromones()
+
+    def update_pheromones(self):
+        self.tau *= (1-self.ro)
+
+        for ant in self.ants:
+            path = ant.M
+            for i in range(len(ant.M)):
+                self.tau[path[i - 1], path[i]] += self.Q/ant.L
+
+            ant.M = []
+            ant.L = 0
+
+        print(self.tau)
 
 
     def tour_construction(self):
         nodes = len(self.C)
-        for _ in range(nodes-1):
+        for node in range(nodes-1):
             for ant in self.ants:
                 if len(ant.M) == 0:
                     ant.M.append(random.choice(range(nodes)))
                 j = self.select_next_node(ant.M)
-                ant.M.append(self.C[j])
-                ant.T.append(self.L[j])
-
+                ant.M.append(j)
+                ant.L += self.L[ant.M[-2], j]
+                if node == nodes - 2:
+                    ant.L += self.L[ant.M[0], ant.M[-1]]
 
         for ant in self.ants:
-            print('nodes:', ant.M, 'distances:', ant.T)
+            print('nodes:', ant.M, 'distances:', ant.L)
 
 
     def select_next_node(self, M):
         # Current node
         i = M[-1]
 
-        feasible_indexes = []
+        feasible_nodes = []
         p = np.array([])
-        for j in range(len(self.arcs)):
+        for j in range(len(self.L[i])):
             # Find connections from node i to j AND which are not present in the s list
-            if self.arcs[j][0] == i and self.arcs[j][1] not in M[:-1]:
-                feasible_indexes.append(j)
-                p_ij = self.tau[j]**self.alpha * self.eta[j]**self.beta
+            if j not in M[:-1]:
+                feasible_nodes.append(j)
+                p_ij = self.tau[i][j]**self.alpha * self.eta[i][j]**self.beta
                 p = np.append(p, p_ij)
 
         p = p/sum(p)
-        j = np.random.choice(feasible_indexes, p=p)
+        j = np.random.choice(feasible_nodes, p=p)
 
         return j
 
 
     def tau_init(self):
-        L = self.f(self.nearest_neighbour())
+        s, L = self.nearest_neighbour()
         self.tau += self.m/L
 
 
@@ -91,4 +125,8 @@ class AntColonyOptimization:
             # Get nearest neighbour j
             s.append(nearest_index)
 
-        return s
+        total_value = 0
+        for i in range(len(s)):
+            total_value += self.L[s[i-1], s[i]]
+
+        return s, total_value
