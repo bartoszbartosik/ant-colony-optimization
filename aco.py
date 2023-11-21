@@ -25,7 +25,8 @@ class AntColonyOptimization:
 
         self.solutions = {
             's': [],
-            'values': []
+            'values': [],
+            'tau': []
         }
 
 
@@ -60,6 +61,7 @@ class AntColonyOptimization:
             path = ant.M
             for i in range(len(ant.M)):
                 self.tau[path[i - 1], path[i]] += self.Q/ant.L
+        self.solutions['tau'].append(self.tau.copy())
 
 
     def tour_construction(self):

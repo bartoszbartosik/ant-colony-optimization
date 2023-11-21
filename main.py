@@ -1,7 +1,7 @@
 import sys
 
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, animation
 
 from aco import AntColonyOptimization as ACO
 
@@ -17,31 +17,59 @@ def main():
         [0, 3],     # 3
     ])
 
-    cities = np.array(np.unique(np.random.random(size=(50, 2)), axis=1)*10)
+    cities = np.array(np.unique(np.random.random(size=(20, 2)), axis=1)*10)
     print(cities)
 
     # Create TravelingSalesmanProblem instance
     tsp = TSP(cities)
 
-    # Compute distance between given series of cities
-    sample_path = np.array([0, 2, 1, 3])
-    print(tsp.get_distance(sample_path))
-
     # Initialize Ant System algorithm
     aco = ACO(tsp.get_graph(), ants_number=10, evaporation_rate=0.5, alpha=1, beta=2, Q=1)
 
     # Run algorithm n times to construct ants solutions
-    s, value = aco.run(10)
+    s, value = aco.run(100)
     print(s, value)
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # #   V I S U A L I S A T I O N   # # # # # # # # # # # # # # # # # # # # # #
+    # PREPROCESS OBTAINED DATA
+    # Optimal solution
     xs = [cities[n][0] for n in s]
     ys = [cities[n][1] for n in s]
 
     xs.append(xs[0])
     ys.append(ys[0])
 
+    # Paths history
+    solutions = aco.solutions['s']
+
+    xh = []
+    yh = []
+
+    for h in solutions:
+        x = [cities[n][0] for n in h]
+        y = [cities[n][1] for n in h]
+        x.append(x[0])
+        y.append(y[0])
+        xh.extend([x])
+        yh.extend([y])
+
+    # Pheromones history
+    alphas = np.zeros_like(aco.solutions['tau'])
+    for t in range(len(alphas)):
+        t_min = np.min(aco.solutions['tau'][t])
+        t_max = np.max(aco.solutions['tau'][t])
+        print('t_min', t_min, 't_max', t_max)
+        for i in range(len(alphas[0])):
+            for j in range(len(alphas[0][0])):
+                if aco.solutions['tau'][t][i][j] <= t_min:
+                    alphas[t][i][j] = 0
+                elif aco.solutions['tau'][t][i][j] >= t_max:
+                    alphas[t][i][j] = 1
+                else:
+                    alphas[t][i][j] = aco.solutions['tau'][t][i][j]/(t_max-t_min) - t_min/(t_max - t_min)
+
+    # Create plots
     plt.subplot(212)
     plt.plot(aco.solutions['values'], c='0.3')
     plt.title('shortest distance obtained')
@@ -67,6 +95,45 @@ def main():
     plt.grid()
     plt.show()
 
+    # plt.savefig("plots/solution.png")
+
+    fig, ax = plt.subplots()
+    ax.scatter(cities[:, 0], cities[:, 1], c='0.25')
+    ax_city_links = np.zeros_like(alphas[0], dtype=object)
+    for i in range(len(cities)):
+        for j in range(len(cities)):
+            if i != j:
+                ax_city_links[i][j] = ax.plot([cities[i, 0], cities[j, 0]], [cities[i, 1], cities[j, 1]], c='0.5', alpha=0.3, zorder=0)[0]
+    ax_links = ax.plot(xs[0], ys[0], c='0.3', alpha=1)[0]
+    iteration_template = 'iteration = %.0f'
+    iteration_text = ax.text(0, -0.11, '', transform=ax.transAxes)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.grid()
+    def update(iteration):
+        # For each iteration update the x and y coordinates of links
+        x = xh[iteration]
+        y = yh[iteration]
+
+        for i in range(len(alphas[0])):
+            for j in range(len(alphas[0])):
+                if ax_city_links[i][j] != 0:
+                    ax_city_links[i][j].set_alpha(alphas[iteration][i][j])
+
+        # Update the line plot
+        ax_links.set_xdata(x)
+        ax_links.set_ydata(y)
+
+        # Update text
+        iteration_text.set_text(iteration_template % (iteration+1))
+        return ax_links, ax_city_links
+
+    interval = 100
+    anim = animation.FuncAnimation(fig=fig, func=update, frames=len(xh), interval=interval)
+    plt.show()
+
+    # writergif = animation.PillowWriter(fps=len(xh)/interval*10)
+    # anim.save("plots/tour_construction.gif", writer=writergif, dpi='figure')
 
 if __name__ == '__main__':
     main()
