@@ -23,24 +23,34 @@ class AntColonyOptimization:
         self.tau = np.zeros_like(self.L)
         self.tau_init()
 
-
-    def get_solution(self):
-        min_value = sys.maxsize
-        solution = 0
-        for ant in self.ants:
-            print(ant.L)
-            if ant.L < min_value:
-                min_value = ant.L
-                solution = ant.M
-            print(min_value)
-        return solution, min_value
+        self.solutions = {
+            's': [],
+            'values': []
+        }
 
 
     def run(self, iterations):
-        for _ in range(iterations):
+        solution, value = 0, 0
+        for i in range(iterations):
+            # Show progress bar
+            sys.stdout.write('\r')
+            sys.stdout.write("Ants path construction in progress: [%-20s] %d%%" % ('=' * int(i / iterations * 20), int(i / iterations * 100)))
+            sys.stdout.flush()
+            # Spawn new ants
             self.ants = [Ant() for _ in range(self.m)]
-            self.tour_construction()
+
+            # Construct tour for each ant
+            solution, value = self.tour_construction()
+            # Append the one which did best to the solutions
+            self.solutions['s'].append(solution)
+            self.solutions['values'].append(value)
+
+            # Update pheromone trails
             self.update_pheromones()
+
+        min_value = min(self.solutions['values'])
+        best_solution = self.solutions['s'][self.solutions['values'].index(min_value)]
+        return best_solution, min_value
 
 
     def update_pheromones(self):
@@ -53,6 +63,9 @@ class AntColonyOptimization:
 
 
     def tour_construction(self):
+        min_value = sys.maxsize
+        solution = 0
+
         nodes = len(self.C)
         for node in range(nodes-1):
             for ant in self.ants:
@@ -63,6 +76,10 @@ class AntColonyOptimization:
                 ant.L += self.L[ant.M[-2], j]
                 if node == nodes - 2:
                     ant.L += self.L[ant.M[0], ant.M[-1]]
+                    if ant.L < min_value:
+                        min_value = ant.L
+                        solution = ant.M
+        return solution, min_value
 
 
     def select_next_node(self, M):
@@ -72,7 +89,7 @@ class AntColonyOptimization:
         feasible_nodes = []
         p = np.array([])
         for j in range(len(self.L[i])):
-            # Find connections from node i to j AND which are not present in the s list
+            # Consider j which are not present in the M list
             if j not in M[:-1]:
                 feasible_nodes.append(j)
                 p_ij = self.tau[i][j]**self.alpha * self.eta[i][j]**self.beta
