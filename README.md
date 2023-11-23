@@ -1,5 +1,5 @@
 # Ant Colony Optimization
-This metaheuristic optimization algorithm inspired ants behaviour attempts to find the most optimal solution of a given problem expressed in a form of graph $G$ being a tuple of components $C$ and connections $L$ between them, i.e., $G = (C, L)$. There are many variations of its implementation. The one that has been adapted in this project is the _Ant System_.
+This metaheuristic optimization algorithm inspired by ants behaviour attempts to find the most optimal solution of a given problem expressed in a form of graph $G$ being a tuple of components $C$ and connections $L$ between them, i.e., $G = (C, L)$. There are many variations of its implementation. The one that has been adapted in this project is the _Ant System_.
 
 ## Principle of operation
 The core concept of the Ant Colony Optimization algorithm is the _pheromone_ trail the ants leave after traveling between nodes on the graph. Its value is used for the other ants to determine which node to choose next. The greater the value of the pheromone trail joining specific node, the greater the probablity that the ant will select it.
