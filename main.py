@@ -18,7 +18,7 @@ def main():
     ])
 
     # Randomly generate cities coordinates
-    cities_number = 20
+    cities_number = 50
     cities = np.array(np.unique(np.random.random(size=(cities_number, 2)), axis=1)*10)
     print(cities)
 
@@ -26,7 +26,7 @@ def main():
     tsp = TSP(cities)
 
     # Initialize Ant System algorithm
-    m = 10
+    m = 50
     ro = 0.5
     alpha = 1
     beta = 2
