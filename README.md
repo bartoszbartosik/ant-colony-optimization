@@ -2,8 +2,8 @@
 This metaheuristic optimization algorithm based on ants behaviour attempts to find the most optimal solution of a given problem expressed in a form of graph $G$ being a tuple of components $C$ and connections $L$ between them, i.e., $G = (C, L)$. There are many variations of its implementation. The one that has been adapted in this project is the _Ant System_.
 
 # Traveling Salesman Problem solution
-<p align="center"><img src="plots/solution1-cities-20_m-20_ro-0.5_a-1_b-2_Q-1.png" width="500" class="center"/></p>
-<p align="center"><img src="plots/tour_construction1-cities-20_m-20_ro-0.5_a-1_b-2_Q-1.gif" width="500" class="center"/></p>
+<p align="center"><img src="plots/solution-cities-20_m-10_ro-0.5_a-1_b-2_Q-1.png" width="500" class="center"/></p>
+<p align="center"><img src="plots/tour_construction-cities-20_m-10_ro-0.5_a-1_b-2_Q-1.gif" width="500" class="center"/></p>
 
 # References
 1. M. Dorigo, M. Birattari and T. Stutzle, "Ant colony optimization" in IEEE Computational Intelligence Magazine, vol. 1, no. 4, pp. 28-39, Nov. 2006, doi: 10.1109/MCI.2006.329691.
